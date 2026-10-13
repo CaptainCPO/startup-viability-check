@@ -15,6 +15,8 @@ Ask them in one batch. Record the answer, the status (`observed` / `founder_stat
 5. **Where the first 10–20 paying customers come from.** A named mechanism — a list of 15 companies the founder will call, an ad budget, a partner with an audience, an existing community. "Marketing" is not an answer. If there is no answer, record `channel: undefined` as the primary untested hypothesis. Do not press the founder to invent one.
 6. **What observation would kill the idea.** One sentence — then turn it into a number the model can use. "If people stop coming back daily" becomes "D30 retention < 20 %" or "monthly churn > 25 %"; "if nobody pays" becomes "free→paid < 2 % after 60 days". The reality card and the bridge then show what that threshold does to the outcome, so a month after launch the founder looks at one metric and knows. If the founder cannot name a kill criterion, note it — it is itself a finding.
 
+**Plus one line on the environment**, asked with the six: what in the market's environment can forbid or price out the sale — regulation or licensing (medical, financial, data), advertising restrictions for the category, certification, accepted payment methods, logistics or tax when selling across a border. This is not a model input; it is a kill factor that can stop the case before any economics, and it goes into the reality card as "Environment: …" with the status of the answer. "Nothing known" is written as `unknown`, not as "none".
+
 ## The substitute filter (decisive)
 
 For the buyer named in question 1, fill three lines:

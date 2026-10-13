@@ -217,7 +217,7 @@ def _mk(c_, cur):
 def _mstat(c_, T):
     """'named source' / 'benchmark library' / 'analyst's estimate' plus library flags — where the market number comes from."""
     s = T["market_status"].get(c_.get("market_status") or "", "")
-    fl = [T["lib_flag"][f] for f in (c_.get("library_flags") or []) if f in T["lib_flag"]]
+    fl = [T["lib_flag"][f] for f in (c_.get("library_flags") or []) + (c_.get("geo_flags") or []) if f in T["lib_flag"]]
     return s + (" (" + "; ".join(fl) + ")" if fl else "")
 
 
@@ -348,9 +348,9 @@ def render_html(rep, T, cur, model, charts_dir, screen=False):
     if filled and len(shown) < n1:
         chips = []
         for c_, g, ln in filled:
-            tag = T["market_status"].get(c_.get("market_status") or "", ""); star = "*" if c_.get("library_flags") else ""
+            tag = T["market_status"].get(c_.get("market_status") or "", ""); star = "*" if (c_.get("library_flags") or c_.get("geo_flags")) else ""
             chips.append(f'<span class="fchip"><b>{E(g[0])}</b> {E(_dv(c_["kind"], c_["market"], cur))} <span class="rng">[{E(_dv(c_["kind"], c_["market_low"], cur))}–{E(_dv(c_["kind"], c_["market_high"], cur))}] · {E(tag)}{star}</span></span>')
-        flagged = any(c_.get("library_flags") for c_, _, _ in filled)
+        flagged = any(c_.get("library_flags") or c_.get("geo_flags") for c_, _, _ in filled)
         a(f'<div class="filled"><div class="fl"><span class="dot" style="background:{MARKET}"></span>{E(T["cmp_filled"])}</div><div class="fchips">{"".join(chips)}</div><div class="fnote">{E(T["cmp_filled_note"])}{(" * " + E(T["lib_flag_note"])) if flagged else ""}</div></div>')
     rest = len(real) - len(shown)
     if rest > 0: a(f'<p class="note">{E(T["cmp_more"].format(n=rest))}</p>')
@@ -455,7 +455,9 @@ def render_html(rep, T, cur, model, charts_dir, screen=False):
         rows_a = [[T["cmp_hdr"][0], T["cmp_hdr"][1], T["cmp_hdr"][2], T["cmp_hdr"][3]]]
         for c_ in r_["comparison"]:
             stt = T["status"].get(c_["status"], c_["status"]); fl = T["fill"].get(c_["fill"], "") if c_["fill"] else ""
-            rows_a.append([T["dom"].get(c_["domain"], c_["label"]), f"{_dv(c_['kind'], c_['founder'], cur)} ({stt}{'; ' + fl if fl else ''})", f"{_mk(c_, cur)} · {c_['source'] or T['fill']['unverified']}",
+            geo = " · ".join(x for x in (c_.get("market_region"), c_.get("market_period")) if x)
+            flags_ = [T["lib_flag"][f] for f in (c_.get("library_flags") or []) + (c_.get("geo_flags") or []) if f in T["lib_flag"]]
+            rows_a.append([T["dom"].get(c_["domain"], c_["label"]), f"{_dv(c_['kind'], c_['founder'], cur)} ({stt}{'; ' + fl if fl else ''})", f"{_mk(c_, cur)} · {c_['source'] or T['fill']['unverified']}" + (f" [{geo}]" if geo else "") + (" ⚠ " + "; ".join(flags_) if flags_ else ""),
                            "—" if c_["gap_ratio"] is None else ("∞" if isinstance(c_["gap_ratio"], str) else fmt_mult(c_["gap_ratio"]))])
         a(_table(rows_a, "long", widths=[20, 20, 52, 8]))
     a(f'<h2 class="sec">{E(T["ap_evidence"])}</h2>' + _table(rep["appendix"]["evidence"], "long"))

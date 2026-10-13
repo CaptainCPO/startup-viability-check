@@ -135,7 +135,29 @@ def library() -> dict:
 
 
 _LIB_ID = None
-MARKET_STATUSES = ("cited", "library", "derived")   # cited = a named comparable/primary figure · library = a benchmarks.json entry · derived = the analyst's own calculation or rule of thumb
+MARKET_STATUSES = ("cited", "library", "derived")
+REGION_GROUPS = {"EU": {"AT", "DE", "CH", "FR", "IT", "ES", "NL", "BE", "PL", "CZ", "SE", "DK", "FI", "NO", "PT", "IE", "EU", "UK", "GB", "E_EU", "W_EU", "DACH"},
+                 "US": {"US", "USA", "CA", "NA"}, "LATAM": {"LATAM", "BR", "MX", "AR", "CO", "CL"}, "APAC": {"APAC", "IN", "SG", "AU", "JP", "KR", "ID"}, "MENA": {"MENA", "AE", "SA", "IL", "TR"}}
+
+
+def _region_groups(r) -> set:
+    """Groups a region string belongs to; composite strings (US_W_EU, 'EU|US', 'DE, AT') map to every group they name."""
+    r = str(r or "").strip().upper().replace("-", "_")
+    if not r or r in ("GLOBAL", "WORLD", "ANY"): return set()
+    out = set()
+    tokens = [t for t in r.replace("|", "_").replace(",", "_").replace("/", "_").split("_") if t]
+    joined = ["_".join(tokens[i:j]) for i in range(len(tokens)) for j in range(i + 1, len(tokens) + 1)]   # W_EU, E_EU as well as single tokens
+    for t in joined:
+        for g, members in REGION_GROUPS.items():
+            if t == g or t in members: out.add(g)
+    return out or {r}
+
+
+def regions_match(case_region, value_region) -> bool | None:
+    """True / False, or None when either side is unknown or global."""
+    a, b = _region_groups(case_region), _region_groups(value_region)
+    if not a or not b: return None
+    return bool(a & b)
 
 
 def _stale(date_str, months=24) -> bool:
@@ -312,6 +334,19 @@ def validate(cfg: dict) -> dict:
         if m_status is None and m_lo is not None:   # not stated: infer, and say so in the pack
             derived_words = ("derived", "scaled", "estimate", "funnel", "capacity", "rule of thumb", "assumed", "оцен", "воронк", "расч")
             m_status = "derived" if any(w in source.lower() for w in derived_words) else ("library" if lib_ids else "cited")
+        m_region = str(spec.get("region") or "").strip() or None
+        m_period = str(spec.get("period") or "").strip() or None
+        case_region = cfg.get("region") or cfg.get("_region")
+        geo_flags = []
+        if m_lo is not None:
+            if m_region and regions_match(case_region, m_region) is False:
+                geo_flags.append("other_region"); out["warnings"].append(f"assumptions.{d}: market value is for {m_region}, the business sells in {case_region} — a different region; the report shows the flag")
+            if m_period and _stale(m_period):
+                geo_flags.append("old_period"); out["warnings"].append(f"assumptions.{d}: market value describes {m_period} — older than 24 months")
+            for tok in lib_ids:   # library entries carry their own region/date
+                e = library()[tok]; er = (e.get("applies") or {}).get("region")
+                if er and regions_match(case_region, er) is False and "other_region" not in geo_flags:
+                    geo_flags.append("other_region"); out["warnings"].append(f"assumptions.{d}: library entry {tok} is for region {er}, the business sells in {case_region}")
         m_currency = spec.get("currency")
         model_ccy = CURRENCY_CODES.get(str(cfg.get("currency") or cfg.get("_currency") or "").strip().upper())
         if m_currency is not None and CURRENCY_CODES.get(str(m_currency).strip().upper()) != model_ccy:
@@ -340,7 +375,7 @@ def validate(cfg: dict) -> dict:
                 raise ValueError(f"assumptions.{d}.{nm} = {v:g} is outside the allowed range [{lo_b:g}, {hi_b if hi_b is not None else '∞'}]")
         dom[d] = {"label": label, "kind": kind, "better_high": better_high, "founder": f, "market": (m_lo + m_hi) / 2,
                   "market_low": m_lo, "market_high": m_hi, "status": status, "source": source, "fill": fill,
-                  "market_status": m_status, "library_flags": sorted(set(lib_flags))}
+                  "market_status": m_status, "library_flags": sorted(set(lib_flags)), "market_region": m_region, "market_period": m_period, "geo_flags": geo_flags}
     out["dom"] = dom
     out["channels"] = channels
     out["unit_of_sale"] = str(cfg.get("unit_of_sale", "") or "").strip()
@@ -565,6 +600,7 @@ def comparison(p: dict) -> list:
         rows.append({"domain": d, "label": s["label"], "kind": s["kind"], "founder": f, "market": m, "market_low": s["market_low"], "market_high": s["market_high"],
                      "status": s["status"], "source": s["source"], "fill": s["fill"], "gap_ratio": gap,
                      "market_status": s.get("market_status"), "library_flags": s.get("library_flags", []),
+                     "market_region": s.get("market_region"), "market_period": s.get("market_period"), "geo_flags": s.get("geo_flags", []),
                      "founder_better": ((f > m) == s["better_high"]) if f != m else None})
     return rows
 
@@ -731,7 +767,7 @@ def run_line(cfg: dict) -> dict:
     res = {"cases": cases, "comparison": comparison(p), "bridge": br, "bridge_by_domain": {b["domain"]: b for b in br},
            "tornado": tor, "tornado_by_domain": {t["domain"]: t for t in tor}, "warnings": p["warnings"],
            "mode": mode, "bridge_to_market": btm, "bridge_to_market_by_domain": {b["domain"]: b for b in btm},
-           "months": p["months"], "revenue_unit": p["unit"], "name": p["name"], "unit_of_sale": p["unit_of_sale"], "counts": c}
+           "months": p["months"], "revenue_unit": p["unit"], "name": p["name"], "unit_of_sale": p["unit_of_sale"], "counts": c, "region": cfg.get("region") or cfg.get("_region")}
     probs = consistency(res)
     if probs: raise AssertionError("internal inconsistency: " + "; ".join(probs))
     return res
@@ -752,7 +788,7 @@ def run_all(cfg: dict) -> dict:
         name = str(ln.get("name", f"line{i+1}"))
         if name.lower() in {n.lower() for n in lines}:
             raise ValueError(f"duplicate line name {name!r} (names are compared case-insensitively — Excel sheet names are)")
-        lines[name] = run_line(dict(ln, name=name, _currency=cfg.get("currency"))); horizons[name] = lines[name]["months"]
+        lines[name] = run_line(dict(ln, name=name, _currency=cfg.get("currency"), _region=cfg.get("region"))); horizons[name] = lines[name]["months"]
     if len(set(horizons.values())) != 1:
         raise ValueError(f"all revenue lines must share the same horizon (months); got {horizons}")
     months = next(iter(horizons.values()))

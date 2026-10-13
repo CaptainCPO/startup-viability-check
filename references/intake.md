@@ -8,6 +8,7 @@ Extract from what the user already wrote, then ask for the rest in a single batc
 |---|---|---|
 | `product` | One sentence: what it is, what it does | ask |
 | `customer` | Who buys — role, company size or consumer segment, region | ask |
+| `region` | Country or region the business sells in (→ model input `region`, e.g. AT, DE, EU, US) — market values from another region are flagged | ask |
 | `problem` | The pain being solved and how it's solved today | ask |
 | `business_model` | Archetype: B2B SaaS seat-based / B2B SaaS flat / B2C subscription / marketplace / transactional / services / hardware | infer, confirm |
 | `pricing` | Price point and unit (per seat, per month, per transaction, one-off) | ask — required for the model |
@@ -29,6 +30,20 @@ Extract from what the user already wrote, then ask for the rest in a single batc
 | `months` | Projection horizon, integer 12–120 (default 36) | ask only if the founder plans on a different horizon; every output labels its last month |
 | `founder_numbers` | Every number the founder has for the model's domains (`calibration.md`): price, margin, churn or repeat rate, expansion, CAC or ad budget, new customers per month, cost per FTE | record each as a POINT with its status tag; these become the `founder` column of the Assumptions Pack |
 | `website` | URL if exists — read it for context | optional |
+
+## Internal data map (any business with customers)
+
+Before any external research, list what the company already has — one line per source. This is what turns "we have no churn number" into a 30-minute export, and it is where the `observed` numbers come from.
+
+| Source | Owner | Period covered | Export format | Answers | Anonymise? |
+|---|---|---|---|---|---|
+| Billing / payments (Stripe, invoices) | founder | since first sale | CSV | active customers, MRR, average ticket, churn by cohort | customer names → ids |
+| CRM / deal pipeline | sales lead | last 12 months | CSV | calls → demos → signed per month, cycle length | contact names |
+| Ad accounts / analytics | marketing | last 6 months | report | spend, CPC, signups, cash CAC per channel | — |
+| Product analytics | product | since launch | export | activation, retention curves, usage per account | user ids |
+| Support / interviews / reviews | founder | ongoing | notes | why customers leave, what they compare with | names |
+
+Ask for the exports in the first message of Pass 2 so they arrive while research runs; record the period each export covers — a churn figure from three months of data is written as such. Never paste personal data or commercial secrets into the chat: ask for anonymised exports (ids instead of names, totals instead of line items) and say so when asking.
 
 ## Source tags on every number
 

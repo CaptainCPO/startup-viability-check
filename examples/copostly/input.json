@@ -78,5 +78,6 @@
   ]
  },
  "fte": 4,
- "sales_share_of_payroll": 0.25
+ "sales_share_of_payroll": 0.25,
+ "region": "EU"
 }

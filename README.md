@@ -60,7 +60,7 @@ On macOS: `brew install libreoffice poppler pango` (pango is WeasyPrint's render
 - Marketplaces are modelled one-sided (demand); supply and liquidity have to be argued in the research.
 - Enterprise cash timing (annual prepayment) and hardware working capital are not modelled.
 - The benchmark library is small and marked honestly: `python scripts/lib_audit.py` lists entries that are unverified or older than 24 months, and the report shows the flag next to any value that rests on one.
-- Currency conversion of market values is manual (state the rate in the source).
+- Currency conversion of market values is manual (state the rate in the source); region and period mismatches are flagged, not corrected.
 
 ## Contributing
 

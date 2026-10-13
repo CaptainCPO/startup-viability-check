@@ -2,6 +2,18 @@
 
 Run searches in this order. Stop a line of search when you have two independent sources or have clearly exhausted it — don't chase a fifth source for a number that already agrees.
 
+## 0. The decision first, then the ledger
+
+Research serves one decision the founder has to make — name it before the first search: *invest the next three months or not · raise a round or bootstrap · enter this country / segment or another · raise the price or not*. A search that does not change that decision is not run. Then write the ledger in three lists and keep it in the Evidence Pack:
+
+- **Known** — facts with a source (the founder's measured numbers, published prices, a regulator's rule).
+- **Unknown** — what the decision needs and nobody has (a churn figure, a close rate, a licence requirement).
+- **Hypotheses** — what the founder or the analyst believes, written as a checkable statement with the number that would confirm or refute it.
+
+Each unknown gets a search or a measurement; each hypothesis gets the data that would settle it and where it comes from. The ledger is what the report's `conditions` and "next 90 days" are later written from, so unknowns that cannot be closed by research are already the first tests.
+
+**For a live business, inventory the internal data before searching outside** (`references/intake.md` § Internal data map): the founder's own billing, CRM and ad accounts answer churn, conversion and acquisition cost more reliably than any benchmark.
+
 ## 1. Market
 
 - Size of the addressable segment (not the headline TAM — the segment the Case Card names). Prefer bottom-up: number of target customers × realistic price.
@@ -60,20 +72,20 @@ Good sources: OpenView / Bessemer / a16z / ChartMogul / ProfitWell / Lenny's New
 
 ## 4. Risks outside the model
 
-- Regulation or compliance affecting the segment (GDPR, HIPAA, financial licensing, AI-specific rules)
+- Regulation or compliance affecting the segment (GDPR, HIPAA, financial licensing, AI-specific rules); for a new country or vertical also advertising restrictions, licensing or certification, accepted payment methods, logistics and tax — anything that can forbid or price out the sale before the economics matter
 - Platform dependency (API terms, app-store policy)
 - Concentration — does the business depend on one channel or one partner?
 
 ## Evidence Pack format
 
 ```
-| # | Claim | Value | Source | Quality |
-|---|-------|-------|--------|---------|
-| 1 | Paid-social CAC, B2B SaaS SMB | $300–600 | https://… | benchmark |
-| 2 | Competitor X price | $49/seat/mo | https://… | direct |
+| # | Claim | Value | Source | Quality | Region · period |
+|---|-------|-------|--------|---------|-----------------|
+| 1 | Paid-social CAC, B2B SaaS SMB | $300–600 | https://… | benchmark | US · 2025 |
+| 2 | Competitor X price | $49/seat/mo | https://… | direct | EU · 2026-03 |
 ```
 
-Then the three competitor tables, then a short "Risks outside the model" list. No narrative.
+Every claim carries the region and the period the figure describes; a figure from another region or older than two years is still usable, but the mismatch is written next to it and the model's `region` / `period` fields on the market value carry it into the report. Then the three competitor tables, a short "Risks outside the model" list, and **"Sources tried and unavailable"** — pages that did not load, reports behind paywalls, datasets that exist but were not reached — so the next pass knows what to try and the reader knows what the pack does not rest on. No narrative.
 
 
 ## When the company's own site cannot be read

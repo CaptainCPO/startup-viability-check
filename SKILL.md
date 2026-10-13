@@ -53,7 +53,7 @@ Present the Case Card as a table and wait for confirmation.
 
 ### Step 1 — Research → Evidence Pack
 
-Read `references/research.md`. Start from the library (`references/benchmarks.json`) and try to replace each applicable entry with a fresher or higher-tier source; every fact gets a URL, a tier (`primary` / `survey` / `secondary`), and a date. For direct competitors capture published operating figures — prices, take rates, conversion, customer counts — they become the market column of the Assumptions Pack. Three competitor layers are mandatory — direct, indirect, displacers — each displacer with a defence line. Pull the funnel benchmarks for the case's motion and the comparable benchmark (segment size × comparable penetration — a reference, not a ceiling). Output tables, no narration.
+Read `references/research.md`. Start from the decision the founder has to make and the known / unknown / hypotheses ledger (§ 0); for a business with customers, inventory the internal data first (`references/intake.md` § Internal data map). Start from the library (`references/benchmarks.json`) and try to replace each applicable entry with a fresher or higher-tier source; every fact gets a URL, a tier (`primary` / `survey` / `secondary`), and a date. For direct competitors capture published operating figures — prices, take rates, conversion, customer counts — they become the market column of the Assumptions Pack. Three competitor layers are mandatory — direct, indirect, displacers — each displacer with a defence line. Pull the funnel benchmarks for the case's motion and the comparable benchmark (segment size × comparable penetration — a reference, not a ceiling). Output tables, no narration.
 
 ### Step 2 — Verification
 
@@ -134,6 +134,7 @@ The verdict is one of four and the builder checks the first rule: **Not assessab
 - Any LTV, payback, or projection number written in prose rather than read from the script.
 - Merging the founder's number and the market's into one "realistic" range — the disagreement is the finding.
 - Presenting an analyst's own estimate as "the market": a derived market value carries `market_status: derived` and is shown as such.
+- Using a market figure from another region or an old period without saying so — `region` / `period` on the value, the model flags the mismatch.
 - Citing a library entry that is `verified: false` or older than 24 months without saying so — the model flags it; the report shows the flag; `python scripts/lib_audit.py` lists them before a run.
 
 ## Author and licence
